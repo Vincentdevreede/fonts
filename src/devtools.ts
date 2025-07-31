@@ -60,6 +60,7 @@ export function setupDevtoolsConnection(enabled: boolean) {
 
   let rpc: BirpcGroup<ClientFunctions, ServerFunctions>
   const fonts: Array<ManualFontDetails | ProviderFontDetails> = []
+  let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
   onDevToolsInitialized(() => {
     rpc = extendServerRpc<ClientFunctions, ServerFunctions>(DEVTOOLS_RPC_NAMESPACE, {
@@ -70,8 +71,12 @@ export function setupDevtoolsConnection(enabled: boolean) {
     rpc.broadcast.exposeFonts.asEvent(fonts)
   })
   function exposeFonts(font: ManualFontDetails | ProviderFontDetails) {
-    fonts.push(font)
-    rpc?.broadcast.exposeFonts.asEvent(fonts)
+    if (debounceTimer) clearTimeout(debounceTimer)
+
+    debounceTimer = setTimeout(() => {
+      fonts.push(font)
+      rpc?.broadcast.exposeFonts.asEvent(fonts)
+    }, 1000)
   }
   return {
     exposeFont: exposeFonts,
