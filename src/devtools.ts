@@ -71,10 +71,10 @@ export function setupDevtoolsConnection(enabled: boolean) {
     rpc.broadcast.exposeFonts.asEvent(fonts)
   })
   function exposeFonts(font: ManualFontDetails | ProviderFontDetails) {
-    if (debounceTimer) clearTimeout(debounceTimer)
+    fonts.push(font)
 
+    if (debounceTimer) clearTimeout(debounceTimer)
     debounceTimer = setTimeout(() => {
-      fonts.push(font)
       rpc?.broadcast.exposeFonts.asEvent(fonts)
     }, 1000)
   }
